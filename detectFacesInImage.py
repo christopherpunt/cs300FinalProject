@@ -27,13 +27,10 @@ client.connect(BROKER, PORT, 60)
 def sendImage(image):
     # with open("img.jpg", "rb") as image_file:
     #     content = image_file.read()
-    print(type(image))
     bytesarray = image
     client.publish('chrisNate/Image', bytesarray, 0)
 
     client.loop_forever()
-
-
 
 
 # Load the cascade
@@ -62,12 +59,8 @@ while True:
     if len(faces) > 0:
         print(c)
         c = c + 1
-        # status = cv2.imwrite('faces_detected' + str(c)  + '.jpg', frame)
-        # print(type(frame))
         print("Sending Image over mqtt")
         imgstr = cv2.imencode(".jpg", frame)[1].tostring()
-        print(type(imgstr))
-        # print(str(frame))
         sendImage(bytearray(imgstr))
 
         # print ("Image faces_detected.jpg written to filesystem: ",status)
