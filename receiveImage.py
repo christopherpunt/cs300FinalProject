@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 
 QOS = 0
 PORT = 1883
-BROKER = 'mqtt.eclipse.org'
+BROKER = '97.95.108.173'
 c = 0
 
 # Callback when connecting to the MQTT broker
@@ -17,9 +17,10 @@ def on_message(client, userdata, msg):
     global c
     c = c + 1
     print("Topic : ", msg.topic)
-    print("writing " + str(c) + "files")
-    with open("output.jpg", "wb") as f:
-        f.write(msg.payload)
+    print(int(msg.payload))
+    # print("writing " + str(c) + "files")
+    # with open("output.jpg", "wb") as f:
+    #     f.write(msg.payload)
 
 client = mqtt.Client()
 client.on_connect = on_connect

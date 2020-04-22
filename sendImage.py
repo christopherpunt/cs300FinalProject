@@ -7,7 +7,7 @@ import json
 
 QOS = 0
 PORT = 1883
-BROKER = 'mqtt.eclipse.org'
+BROKER = '97.95.108.173'
 
 
 # Callback when a message is published
@@ -26,11 +26,14 @@ client.on_connect = on_connect
 client.on_publish = on_publish
 client.connect(BROKER, PORT, 60)
 
-with open("img.jpg", "rb") as image_file:
+with open("chris_nate_test.jpg", "rb") as image_file:
     content = image_file.read()
     bytesarray = bytearray(content)
 
 print(type(bytesarray))
-client.publish('chrisNate/Image', bytesarray, 0)
+client.publish('chrisNate/Image', bytesarray)
 
-client.loop_forever()
+client.loop_start()
+
+while True:
+    pass
