@@ -8,6 +8,7 @@ import json
 QOS = 0
 PORT = 1883
 BROKER = '97.95.108.173'
+BROKER = 'mqtt.eclipse.org'
 
 
 # Callback when a message is published

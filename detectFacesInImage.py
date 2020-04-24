@@ -6,20 +6,19 @@ import RPi.GPIO as GPIO
 
 # Constants
 BROKER = '97.95.108.173'
+BROKER = 'mqtt.eclipse.org'
 PORT = 1883
 QOS = 0
-admitTrue = 16
-admitFalse = 20
-
+unlockedLED = 16
+lockedLED = 20
+DELAY = 2.0 # how long the lock stays unlocked
 
 # Initialize GPIO input and output
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(admitTrue, GPIO.OUT)
-GPIO.setup(admitFalse, GPIO.OUT)
-GPIO.output(admitTrue, False)
-GPIO.output(admitFalse, False)
-
-
+GPIO.setup(unlockedLED, GPIO.OUT)
+GPIO.setup(lockedLED, GPIO.OUT)
+GPIO.output(unlockedLED, False)
+GPIO.output(lockedLED, False)
 
 # Callback when a message is published
 def on_publish(client, userdata, mid):
@@ -33,6 +32,13 @@ def on_connect(client, userdata, flags, rc):
         print('Connection to',BROKER,'failed. Return code=',rc)
         os._exit(1)
 
+def blink(led):
+    for count in range(5):
+        GPIO.output(led, True)
+        time.sleep(0.2)
+        GPIO.output(led, False)
+        time.sleep(0.2)
+
 # Callback when client receives a PUBLISH message from the broker
 def on_message(client, data, msg):
     if msg.topic == "chrisNate/admit":
@@ -41,12 +47,16 @@ def on_message(client, data, msg):
     if(msg.topic == "chrisNate/admit"):
         if int(msg.payload) == 1:
             print("admitted")
-            GPIO.output(admitTrue, True)
-            GPIO.output(admitFalse, False)
+            GPIO.output(unlockedLED, True)
+            GPIO.output(lockedLED, False)
+
+            #lock after timer has expired
+            time.sleep(DELAY)
+            GPIO.output(unlockedLED, False)
+            GPIO.output(lockedLED, True)   
         elif int(msg.payload) == 0:
             print("not admitted")
-            GPIO.output(admitTrue, False)
-            GPIO.output(admitFalse, True)   
+            blink(lockedLED) 
 
 # Setup MQTT client and callbacks
 client = mqtt.Client()
@@ -81,10 +91,6 @@ try:
 
         # Detect faces
         faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-        
-        # Draw rectangle around the faces
-        # for (x, y, w, h) in faces:
-        #     cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 0), 2)
 
         if len(faces) > 0:
             print(c)
@@ -93,7 +99,7 @@ try:
             imgstr = cv2.imencode(".jpg", frame)[1].tostring()
             sendImage(bytearray(imgstr))
     
-        time.sleep(4)
+        time.sleep(2)
 except KeyboardInterrupt:
     print("Done")
     GPIO.cleanup()
